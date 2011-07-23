@@ -71,7 +71,7 @@ get '/nytprof' => sub {
     my $settings = plugin_setting;
     opendir my $dirh, $setting->{profdir}
         or die "Unable to open profiles dir $setting->{profdir} - $!";
-    my @files = grep { /^nytprof.out/ } readdir $dirh;
+    my @files = grep { /^nytprof\.out/ } readdir $dirh;
     closedir $dirh;
 
     # HTML + CSS here is a bit ugly, but I want this to be usable as a
