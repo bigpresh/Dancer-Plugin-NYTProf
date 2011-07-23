@@ -54,11 +54,9 @@ if (!-d Dancer::FileUtils::path($setting->{profdir}, 'html')) {
 
 before sub {
     my $path = request->path;
-    debug "Original path: $path";
     return if $path =~ m{^/nytprof};
     $path =~ s{^/}{};
     $path =~ s{[^a-z0-9]}{_}gi;
-    debug "Modified path: $path";
     DB::enable_profile(
         Dancer::FileUtils::path($setting->{profdir}, "nytprof.out.$path.$$")
     );
