@@ -94,7 +94,7 @@ LISTSTART
     for my $file (@files) {
         my $fullfilepath = Dancer::FileUtils::path($setting->{profdir}, $file);
         my $label = $file;
-        $label =~ s{nytprof.out}{};
+        $label =~ s{nytprof\.out\.}{};
         $label =~ s{_}{/}g;
         my $created = scalar localtime( (stat $fullfilepath)->ctime );
         $html .= qq{<li><a href="/nytprof/$file">$label</a> ($created)</li>};
