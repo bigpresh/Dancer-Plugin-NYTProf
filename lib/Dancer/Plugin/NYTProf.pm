@@ -56,6 +56,7 @@ before sub {
     my $path = request->path;
     return if $path =~ m{^/nytprof};
     $path =~ s{^/}{};
+    $path =~ s{/}{%s%}g;
     $path =~ s{[^a-z0-9]}{_}gi;
     DB::enable_profile(
         Dancer::FileUtils::path($setting->{profdir}, "nytprof.out.$path.$$")
@@ -95,7 +96,7 @@ LISTSTART
         my $fullfilepath = Dancer::FileUtils::path($setting->{profdir}, $file);
         my $label = $file;
         $label =~ s{nytprof\.out\.}{};
-        $label =~ s{_}{/}g;
+        $label =~ s{%s%}{/}g;
         $label =~ s{\.(\d+)$}{};
         my $pid = $1;  # refactor this crap
         my $created = scalar localtime( (stat $fullfilepath)->ctime );
