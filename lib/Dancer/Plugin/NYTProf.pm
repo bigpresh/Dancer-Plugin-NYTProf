@@ -39,25 +39,32 @@ development environment.
 =cut
 
 
-# Find out where our profiling data is going, and create directories if needed:
 my $setting = plugin_setting;
-$setting->{profdir} ||= Dancer::FileUtils::path(setting('appdir'), 'nytprof');
-if (! -d $setting->{profdir}) {
-    mkdir $setting->{profdir}
-        or die "$setting->{profdir} does not exist and cannot create - $!";
-}
-if (!-d Dancer::FileUtils::path($setting->{profdir}, 'html')) {
-    mkdir Dancer::FileUtils::path($setting->{profdir}, 'html')
-        or die "Could not create html dir.";
-}
-
 
 before sub {
     my $path = request->path;
     return if $path =~ m{^/nytprof};
+
+    # Make sure that the directories we need to put profiling data in exist,
+    # first:
+    $setting->{profdir} ||= Dancer::FileUtils::path(
+        setting('appdir'), 'nytprof'
+    );
+    if (! -d $setting->{profdir}) {
+        mkdir $setting->{profdir}
+            or die "$setting->{profdir} does not exist and cannot create - $!";
+    }
+    if (!-d Dancer::FileUtils::path($setting->{profdir}, 'html')) {
+        mkdir Dancer::FileUtils::path($setting->{profdir}, 'html')
+            or die "Could not create html dir.";
+    }
+
+    # Now, fix up the path into something we can use for a filename:
     $path =~ s{^/}{};
     $path =~ s{/}{_s_}g;
     $path =~ s{[^a-z0-9]}{_}gi;
+
+    # Start profiling, and let the request continue
     DB::enable_profile(
         Dancer::FileUtils::path($setting->{profdir}, "nytprof.out.$path.$$")
     );
