@@ -57,7 +57,7 @@ before sub {
     return if $path =~ m{^/nytprof};
     $path =~ s{^/}{};
     $path =~ s{/}{%s%}g;
-    $path =~ s{[^a-z0-9]}{_}gi;
+    $path =~ s{[^a-z0-9%]}{_}gi;
     DB::enable_profile(
         Dancer::FileUtils::path($setting->{profdir}, "nytprof.out.$path.$$")
     );
