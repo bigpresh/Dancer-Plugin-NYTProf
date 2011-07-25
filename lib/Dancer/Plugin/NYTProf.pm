@@ -9,7 +9,7 @@ use Dancer qw(:syntax);
 use Dancer::FileUtils;
 use File::stat;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 
 =head1 NAME

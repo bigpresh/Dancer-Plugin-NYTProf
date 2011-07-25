@@ -1,5 +1,10 @@
 Revision history for Dancer-Plugin-NYTProf
 
+0.02    2011-07-25
+        Require Dancer >=  1.3060.
+        (param() wasn't available before then, thanks to sukria for pointing
+        this out)
+
 0.01    2011-07-23
         Initial version.  Working, but plenty of room for improvement.
 
