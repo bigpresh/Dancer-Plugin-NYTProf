@@ -187,6 +187,8 @@ L<Dancer>
 
 L<Devel::NYTProf>
 
+L<Plack::Middleware::Debug::Profiler::NYTProf>
+
 
 =head1 LICENSE AND COPYRIGHT
 
