@@ -171,13 +171,13 @@ David Precious, C<< <davidp at preshweb.co.uk> >>
 =head1 BUGS
 
 Please report any bugs or feature requests at
-L<http://github.com/bigpresh/Dancer-Plugin-DevelNYTProf/issues>.
+L<http://github.com/bigpresh/Dancer-Plugin-NYTProf/issues>.
 
 =head1 CONTRIBUTING
 
 This module is developed on GitHub:
 
-L<http://github.com/bigpresh/Dancer-Plugin-DevelNYTProf>
+L<http://github.com/bigpresh/Dancer-Plugin-NYTProf>
 
 Bug reports, suggestions and pull requests all welcomed!
 
