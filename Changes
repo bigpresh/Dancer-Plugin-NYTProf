@@ -1,5 +1,9 @@
 Revision history for Dancer-Plugin-NYTProf
 
+0.03    2011-11-03
+        Use hook instead of before/after, which cause deprecation warnings now.
+        (Stefan Hornburg (racke))
+
 0.02    2011-07-25
         Require Dancer >=  1.3060.
         (param() wasn't available before then, thanks to sukria for pointing

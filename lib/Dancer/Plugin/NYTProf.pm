@@ -9,7 +9,7 @@ use Dancer qw(:syntax);
 use Dancer::FileUtils;
 use File::stat;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 
 =head1 NAME
@@ -167,6 +167,12 @@ get '/nytprof/:filename' => sub {
 =head1 AUTHOR
 
 David Precious, C<< <davidp at preshweb.co.uk> >>
+
+
+=head1 ACKNOWLEDGEMENTS
+
+Stefan Hornburg (racke)
+
 
 =head1 BUGS
 
