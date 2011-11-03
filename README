@@ -23,14 +23,17 @@ DESCRIPTION
 AUTHOR
     David Precious, `<davidp at preshweb.co.uk>'
 
+ACKNOWLEDGEMENTS
+    Stefan Hornburg (racke)
+
 BUGS
     Please report any bugs or feature requests at
-    http://github.com/bigpresh/Dancer-Plugin-DevelNYTProf/issues.
+    http://github.com/bigpresh/Dancer-Plugin-NYTProf/issues.
 
 CONTRIBUTING
     This module is developed on GitHub:
 
-    http://github.com/bigpresh/Dancer-Plugin-DevelNYTProf
+    http://github.com/bigpresh/Dancer-Plugin-NYTProf
 
     Bug reports, suggestions and pull requests all welcomed!
 
@@ -38,6 +41,8 @@ SEE ALSO
     Dancer
 
     Devel::NYTProf
+
+    Plack::Middleware::Debug::Profiler::NYTProf
 
 LICENSE AND COPYRIGHT
     Copyright 2011 David Precious.
