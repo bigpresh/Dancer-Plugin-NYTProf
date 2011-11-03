@@ -41,7 +41,7 @@ development environment.
 
 my $setting = plugin_setting;
 
-before sub {
+hook 'before' => sub {
     my $path = request->path;
     return if $path =~ m{^/nytprof};
 
@@ -70,7 +70,7 @@ before sub {
     );
 };
 
-after sub {
+hook 'after' => sub {
     DB::disable_profile();
     DB::finish_profile();
 };
