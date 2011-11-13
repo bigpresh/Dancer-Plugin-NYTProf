@@ -1,5 +1,9 @@
 Revision history for Dancer-Plugin-NYTProf
 
+0.04    2011-11-13
+        Remove taint from test to avoid insecure dependency failures further
+        down the line.
+
 0.03    2011-11-03
         Use hook instead of before/after, which cause deprecation warnings now.
         (Stefan Hornburg (racke))
