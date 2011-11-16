@@ -156,8 +156,17 @@ get '/nytprof/:filename' => sub {
     );
     if (! -f Dancer::FileUtils::path($htmldir, 'index.html')) {
         # TODO: scrutinise this very carefully to make sure it's not
-        # exploitable; check for failure
-        system('nytprofhtml', "--file=$profiledata", "--out=$htmldir");
+        # exploitable
+        system($nytprofhtml, "--file=$profiledata", "--out=$htmldir");
+
+        if ($? == -1) {
+            die "'$nytprofhtml' failed to execute: $!";
+        } elsif ($? & 127) {
+            die "'$nytprofhtml' died with signal %d, %s coredump",
+                ($? & 127), ($? & 128) ? 'with' : 'without';
+        } else {
+            die "'$nytprofhtml' exited with value %d", $? >> 8;
+        }
     }
 
     # Redirect off to view it:
