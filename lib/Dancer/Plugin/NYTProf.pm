@@ -38,6 +38,10 @@ development environment.
 
 =cut
 
+my $nytprofhtml = 'nytprofhtml';
+if (system("which $nytprofhtml > /dev/null") != 0) {
+    die "Could not find '$nytprofhtml' in the path.";
+}
 
 my $setting = plugin_setting;
 
