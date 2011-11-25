@@ -43,7 +43,7 @@ development environment.
 my $setting = plugin_setting;
 
 # Work out where nytprof_html is, or die with a sensible error
-my $nytprofhtml_path == File::Which::which(
+my $nytprofhtml_path = File::Which::which(
     $setting->{nytprofhtml_path} || 'nytprofhtml'
 ) or die "Could not find nytprofhtml script.  Ensure it's in your path, "
        . "or set the nytprofhtml_path option in your config.";
