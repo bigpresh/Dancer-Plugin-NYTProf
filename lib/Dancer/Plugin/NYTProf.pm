@@ -8,6 +8,7 @@ use Devel::NYTProf;
 use Dancer qw(:syntax);
 use Dancer::FileUtils;
 use File::stat;
+use File::Which;
 
 our $VERSION = '0.04';
 
@@ -38,12 +39,16 @@ development environment.
 
 =cut
 
-my $nytprofhtml = 'nytprofhtml';
-if (system("which $nytprofhtml > /dev/null") != 0) {
-    die "Could not find '$nytprofhtml' in the path.";
-}
 
 my $setting = plugin_setting;
+
+# Work out where nytprof_html is, or die with a sensible error
+my $nytprofhtml_path == File::Which::which(
+    $setting->{nytprofhtml_path} || 'nytprofhtml'
+) or die "Could not find nytprofhtml script.  Ensure it's in your path, "
+       . "or set the nytprofhtml_path option in your config.";
+
+
 
 hook 'before' => sub {
     my $path = request->path;
@@ -157,15 +162,15 @@ get '/nytprof/:filename' => sub {
     if (! -f Dancer::FileUtils::path($htmldir, 'index.html')) {
         # TODO: scrutinise this very carefully to make sure it's not
         # exploitable
-        system($nytprofhtml, "--file=$profiledata", "--out=$htmldir");
+        system($nytprofhtml_path, "--file=$profiledata", "--out=$htmldir");
 
         if ($? == -1) {
-            die "'$nytprofhtml' failed to execute: $!";
+            die "'$nytprofhtml_path' failed to execute: $!";
         } elsif ($? & 127) {
-            die "'$nytprofhtml' died with signal %d, %s coredump",
+            die "'$nytprofhtml_path' died with signal %d, %s coredump",
                 ($? & 127), ($? & 128) ? 'with' : 'without';
         } else {
-            die "'$nytprofhtml' exited with value %d", $? >> 8;
+            die "'$nytprofhtml_path' exited with value %d", $? >> 8;
         }
     }
 
