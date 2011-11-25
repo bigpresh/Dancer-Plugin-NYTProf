@@ -137,7 +137,7 @@ LISTEND
 get '/nytprof/html/**' => sub {
     my ($path) = splat;
     send_file Dancer::FileUtils::path(
-        $setting->{profdir}, 'html', @$path
+        $setting->{profdir}, 'html', map { _safe_filename($_) } @$path
     ), system_path => 1;
 };
 
@@ -145,7 +145,8 @@ get '/nytprof/:filename' => sub {
     my $settings = plugin_setting;
 
     my $profiledata = Dancer::FileUtils::path(
-        $settings->{profdir}, param 'filename');
+        $settings->{profdir}, _safe_filename(param('filename'))
+    );
 
     if (!-f $profiledata) {
         send_error 'not_found';
@@ -157,7 +158,7 @@ get '/nytprof/:filename' => sub {
 
     # Right, do we already have generated HTML for this one?  If so, use it
     my $htmldir = Dancer::FileUtils::path(
-        $settings->{profdir}, 'html', param('filename')
+        $settings->{profdir}, 'html', _safe_filename(param('filename'))
     );
     if (! -f Dancer::FileUtils::path($htmldir, 'index.html')) {
         # TODO: scrutinise this very carefully to make sure it's not
@@ -181,6 +182,18 @@ get '/nytprof/:filename' => sub {
 };
 
 
+# Rudimentary security - remove any directory traversal or poison null
+# attempts.  We're dealing with user input here, and if they're a sneaky
+# bastard, they could convince us to send a file we shouldn't, or have
+# nytprofhtml write its output to somewhere it shouldn't.  We don't want that.
+sub _safe_filename {
+    my $filename = shift;
+    $filename =~ s/\\//g;
+    $filename =~ s/\0//g;
+    $filename =~ s/\.\.//g;
+    $filename =~ s/[\/]//g;
+    return $filename;
+}
 
 =head1 AUTHOR
 
