@@ -204,6 +204,8 @@ David Precious, C<< <davidp at preshweb.co.uk> >>
 
 Stefan Hornburg (racke)
 
+Neil Hooey (nhooey)
+
 
 =head1 BUGS
 
