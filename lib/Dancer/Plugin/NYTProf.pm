@@ -51,7 +51,6 @@ my $nytprofhtml_path = File::Which::which(
 
 hook 'before' => sub {
     my $path = request->path;
-    return if $path =~ m{^/nytprof};
 
     # Make sure that the directories we need to put profiling data in exist,
     # first:
@@ -66,6 +65,10 @@ hook 'before' => sub {
         mkdir Dancer::FileUtils::path($setting->{profdir}, 'html')
             or die "Could not create html dir.";
     }
+
+    # Go no further if this request was to view profiling output:
+    return if $path =~ m{^/nytprof};
+    return if $path =~ m{^/nytprof};
 
     # Now, fix up the path into something we can use for a filename:
     $path =~ s{^/}{};
