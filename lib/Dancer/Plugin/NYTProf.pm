@@ -36,6 +36,25 @@ need to very carefully re-examine the code to make sure that user input cannot
 be used to nefarious effect.  You are recommended to only use this in your
 development environment.
 
+=head1 CONFIGURATION
+
+The plugin will work by default without any configuration required - it will
+default to writing profiling data into a dir named C<profdir> within your Dancer
+application's C<appdir>, present profiling output at C</nytprof> (not yet
+configurable), and profile all requests.
+
+Below is an example of the options you can configure:
+
+    plugins:
+        NYTProf:
+            profdir: '/tmp/profiledata'
+            nytprofhtmlpath: '/usr/local/bin/nytprofhtml'
+
+More configuration (such as the URL at which output is produced, and options to
+control which requests get profiled) will be added in a future version.  (If
+there's something you'd like to see soon, do contact me and let me know - it'll
+likely get done a lot quicker then!)
+
 =cut
 
 
