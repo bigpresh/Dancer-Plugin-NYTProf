@@ -1,6 +1,5 @@
 package Dancer::Plugin::NYTProf;
 
-#use warnings;
 use strict;
 use Dancer::Plugin;
 use base 'Dancer::Plugin';
