@@ -1,5 +1,25 @@
 Revision history for Dancer-Plugin-NYTProf
 
+0.10    2011-11-26
+        [ BUGFIXES ]
+        * Check for presence of nytprofhtml, and check for errors executing it
+          and produce helpful error messages 
+          (PR-4 from Neil Hooey (nhooey) - thanks!)
+        
+        * Allow path to nytprofhtml to be configurable, default to finding it
+          within the $PATH using File::Which
+
+        * Don't crash if first request after starting app is to /nytprof and no
+          profdir is set in config.
+
+        [ SECURITY ]
+        * Sanitise filenames from user properly.  Previously, it would have been
+          possible to cause the module to send files outside the profdir with
+          cleverly-crafted requests (hence the warnings in the documentation).
+          Be careful that the filename received doesn't contain anything
+          nefarious.
+
+
 0.04    2011-11-13
         Remove taint from test to avoid insecure dependency failures further
         down the line.
