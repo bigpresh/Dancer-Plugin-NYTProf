@@ -84,7 +84,6 @@ hook 'after' => sub {
 };
 
 get '/nytprof' => sub {
-    my $settings = plugin_setting;
     opendir my $dirh, $setting->{profdir}
         or die "Unable to open profiles dir $setting->{profdir} - $!";
     my @files = grep { /^nytprof\.out/ } readdir $dirh;
@@ -141,10 +140,9 @@ get '/nytprof/html/**' => sub {
 };
 
 get '/nytprof/:filename' => sub {
-    my $settings = plugin_setting;
 
     my $profiledata = Dancer::FileUtils::path(
-        $settings->{profdir}, _safe_filename(param('filename'))
+        $setting->{profdir}, _safe_filename(param('filename'))
     );
 
     if (!-f $profiledata) {
@@ -157,7 +155,7 @@ get '/nytprof/:filename' => sub {
 
     # Right, do we already have generated HTML for this one?  If so, use it
     my $htmldir = Dancer::FileUtils::path(
-        $settings->{profdir}, 'html', _safe_filename(param('filename'))
+        $setting->{profdir}, 'html', _safe_filename(param('filename'))
     );
     if (! -f Dancer::FileUtils::path($htmldir, 'index.html')) {
         # TODO: scrutinise this very carefully to make sure it's not
