@@ -6,6 +6,7 @@ use base 'Dancer::Plugin';
 use Dancer qw(:syntax);
 use Dancer::FileUtils;
 use File::stat;
+use File::Temp;
 use File::Which;
 
 our $VERSION = '0.10';
@@ -66,6 +67,20 @@ my $nytprofhtml_path = File::Which::which(
        . "or set the nytprofhtml_path option in your config.";
 
 
+# Need to load Devel::NYTProf at runtime after setting env var, as it will
+# insist on creating an nytprof.out file immediately - even if we tell it not to
+# start profiling.
+# Dirty workaround: get a temp file, then let Devel::NYTProf use that, with
+# addpid enabled so that it will append the PID too (so the filename won't
+# exist).
+# This is dirty, hacky shit that needs to die, but should make things work for
+# now.
+my $tempfh = File::Temp->new;
+my $file = $tempfh->filename;
+$tempfh = undef; # let the file get deleted
+$ENV{NYTPROF} = "start=no:file=$file";
+require Devel::NYTProf;
+
 
 hook 'before' => sub {
     my $path = request->path;
@@ -94,11 +109,6 @@ hook 'before' => sub {
     $path =~ s{[^a-z0-9]}{_}gi;
 
     # Start profiling, and let the request continue
-    # Need to load Devel::NYTProf at runtime after setting env var to stop it
-    # attempting to start profiling (and thus attempting to create nytprof.out)
-    # immediately
-    $ENV{NYTPROF} = "start:no";
-    require Devel::NYTProf;
     DB::enable_profile(
         Dancer::FileUtils::path($setting->{profdir}, "nytprof.out.$path.$$")
     );
