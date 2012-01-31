@@ -72,7 +72,7 @@ my $nytprofhtml_path = File::Which::which(
 # start profiling.
 # Dirty workaround: get a temp file, then let Devel::NYTProf use that, with
 # addpid enabled so that it will append the PID too (so the filename won't
-# exist).
+# exist), load Devel::NYTProf, then unlink the file.
 # This is dirty, hacky shit that needs to die, but should make things work for
 # now.
 my $tempfh = File::Temp->new;
@@ -80,7 +80,7 @@ my $file = $tempfh->filename;
 $tempfh = undef; # let the file get deleted
 $ENV{NYTPROF} = "start=no:file=$file";
 require Devel::NYTProf;
-
+unlink $file;
 
 hook 'before' => sub {
     my $path = request->path;
