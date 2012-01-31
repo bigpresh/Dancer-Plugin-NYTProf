@@ -207,7 +207,7 @@ get '/nytprof/:filename' => sub {
                 ($? & 128) ? 'with' : 'without';
         } else {
             die sprintf "'%s' exited with value %d", 
-                %nytprofhtml_path, $? >> 8;
+                $nytprofhtml_path, $? >> 8;
         }
     }
 
