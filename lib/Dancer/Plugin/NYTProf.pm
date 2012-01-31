@@ -3,7 +3,6 @@ package Dancer::Plugin::NYTProf;
 use strict;
 use Dancer::Plugin;
 use base 'Dancer::Plugin';
-use Devel::NYTProf;
 use Dancer qw(:syntax);
 use Dancer::FileUtils;
 use File::stat;
@@ -95,6 +94,11 @@ hook 'before' => sub {
     $path =~ s{[^a-z0-9]}{_}gi;
 
     # Start profiling, and let the request continue
+    # Need to load Devel::NYTProf at runtime after setting env var to stop it
+    # attempting to start profiling (and thus attempting to create nytprof.out)
+    # immediately
+    $ENV{NYTPROF} = "start:no";
+    require Devel::NYTProf;
     DB::enable_profile(
         Dancer::FileUtils::path($setting->{profdir}, "nytprof.out.$path.$$")
     );
