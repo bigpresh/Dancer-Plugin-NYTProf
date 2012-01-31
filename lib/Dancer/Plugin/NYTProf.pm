@@ -201,10 +201,13 @@ get '/nytprof/:filename' => sub {
         if ($? == -1) {
             die "'$nytprofhtml_path' failed to execute: $!";
         } elsif ($? & 127) {
-            die "'$nytprofhtml_path' died with signal %d, %s coredump",
-                ($? & 127), ($? & 128) ? 'with' : 'without';
+            die sprintf "'%s' died with signal %d, %s coredump",
+                $nytprofhtml_path,,
+                ($? & 127), 
+                ($? & 128) ? 'with' : 'without';
         } else {
-            die "'$nytprofhtml_path' exited with value %d", $? >> 8;
+            die sprintf "'%s' exited with value %d", 
+                %nytprofhtml_path, $? >> 8;
         }
     }
 
