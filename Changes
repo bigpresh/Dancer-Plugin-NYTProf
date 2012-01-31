@@ -1,5 +1,15 @@
 Revision history for Dancer-Plugin-NYTProf
 
+0.20    2012-01-31
+        [ BUGFIXES ]
+        * Load Devel::NYTProf at runtime, after setting the env vars to stop it
+          beginning profiling immediately and giving it a temporary filename (as
+          it insists on opening a file to write to /anyway/).
+          This should solve problems where the plugin was unusable because
+          Devel::NYTProf wanted to write a file to the appdir, even when the
+          profdir setting was used.  Thanks to angel on IRC (#dancer) for
+          reporting this problem.
+
 0.10    2011-11-26
         [ BUGFIXES ]
         * Check for presence of nytprofhtml, and check for errors executing it
