@@ -1,5 +1,11 @@
 Revision history for Dancer-Plugin-NYTProf
 
+0.21    2012-02-02
+        [ BUGFIXES ]
+        * Fix comedy bug where we'd crash regardless of the return value of
+          `nytprofhtml` when first trying to generate HTML output.  That was
+          pretty muppetactular.
+
 0.20    2012-01-31
         [ BUGFIXES ]
         * Load Devel::NYTProf at runtime, after setting the env vars to stop it
