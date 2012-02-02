@@ -278,4 +278,6 @@ See http://dev.perl.org/licenses/ for more information.
 
 =cut
 
-1; # End of Dancer::Plugin::NYTProf
+1; # Sam Kington didn't like that this said "End of Dancer::Plugin::NYTProf",
+   # as it's fairly obvious.  So, just for Sam's pleasure,
+   # "It's the end of the world as we know it!" ... or something.
