@@ -1,5 +1,13 @@
 Revision history for Dancer-Plugin-NYTProf
 
+0.22    2012-09-22
+        [ BUGFIXES ]
+        * Handle nytprofhtml_path option correctly.  (Giving a full file path to
+          File::Which::which() doesn't work; it's a pointless thing to do
+          anyway.  Should fix GH #8, thanks to jbobbylopez for a helpful and
+          detailed bug report!
+
+
 0.21    2012-02-02
         [ BUGFIXES ]
         * Fix comedy bug where we'd crash regardless of the return value of
