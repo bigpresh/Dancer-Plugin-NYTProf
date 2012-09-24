@@ -277,7 +277,7 @@ L<Plack::Middleware::Debug::Profiler::NYTProf>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2011 David Precious.
+Copyright 2011-12 David Precious.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published
