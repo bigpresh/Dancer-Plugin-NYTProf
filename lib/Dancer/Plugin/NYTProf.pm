@@ -142,7 +142,13 @@ produced by <tt>Devel::NYTProf</tt>.</p>
 <ul>
 LISTSTART
 
-    for my $file (@files) {
+    for my $file (
+        sort {
+            (stat Dancer::FileUtils::path($setting->{profdir},$b))->ctime
+            <=>
+            (stat Dancer::FileUtils::path($setting->{profdir},$a))->ctime
+        } @files
+    ) {
         my $fullfilepath = Dancer::FileUtils::path($setting->{profdir}, $file);
         my $label = $file;
         $label =~ s{nytprof\.out\.}{};
