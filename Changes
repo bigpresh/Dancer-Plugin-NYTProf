@@ -1,5 +1,9 @@
 Revision history for Dancer-Plugin-NYTProf
 
+0.23    2012-09-24
+        [ ENHANCEMENTS ]
+        * Sort profile runs by most recent first (thanks to leejo)
+
 0.22    2012-09-22
         [ BUGFIXES ]
         * Handle nytprofhtml_path option correctly.  (Giving a full file path to
