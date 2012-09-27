@@ -9,7 +9,7 @@ use File::stat;
 use File::Temp;
 use File::Which;
 
-our $VERSION = '0.21';
+our $VERSION = '0.22';
 
 
 =head1 NAME
@@ -248,6 +248,10 @@ Stefan Hornburg (racke)
 
 Neil Hooey (nhooey)
 
+J. Bobby Lopez (jbobbylopez)
+
+leejo
+
 
 =head1 BUGS
 
@@ -273,7 +277,7 @@ L<Plack::Middleware::Debug::Profiler::NYTProf>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2011 David Precious.
+Copyright 2011-12 David Precious.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published
