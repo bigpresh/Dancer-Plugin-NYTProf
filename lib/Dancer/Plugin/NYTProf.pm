@@ -120,6 +120,7 @@ hook 'after' => sub {
 };
 
 get '/nytprof' => sub {
+    require Devel::NYTProf::Data;
     opendir my $dirh, $setting->{profdir}
         or die "Unable to open profiles dir $setting->{profdir} - $!";
     my @files = grep { /^nytprof\.out/ } readdir $dirh;
@@ -156,8 +157,23 @@ LISTSTART
         $label =~ s{\.(\d+)$}{};
         my $pid = $1;  # refactor this crap
         my $created = scalar localtime( (stat $fullfilepath)->ctime );
+
+        # read the profile to find out the duration of the profiled request.
+        # Done in an eval to catch errors (e.g. if a profile run died mid-way,
+        # the data will be incomplete
+        my ($profile,$duration);
+        eval {
+            $profile = Devel::NYTProf::Data->new({ filename => $fullfilepath});
+        };
+        if ($profile) {
+            $duration = sprintf '%.4f secs', 
+                $profile->attributes->{profiler_duration};
+        } else {
+            $duration = '??? seconds - corrupt profile data?';
+        }
+
         $html .= qq{<li><a href="/nytprof/$file">$label</a>}
-               . qq{ (PID $pid, $created)</li>};
+               . qq{ (PID $pid, $created, $duration)</li>};
     }
 
     $html .= <<LISTEND;
