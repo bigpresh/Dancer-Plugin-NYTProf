@@ -156,7 +156,7 @@ LISTSTART
         $label =~ s{\.(\d+)$}{};
         my $pid = $1;  # refactor this crap
         my $created = scalar localtime( (stat $fullfilepath)->ctime );
-        $html .= qq{<li><a href="}.request->uri_base().qq{/nytprof/$file">$label</a>}
+        $html .= qq{<li><a href="}.request->uri_for( "/nytprof/$file" )->as_string.qq{">$label</a>}
                . qq{ (PID $pid, $created)</li>};
     }
 
