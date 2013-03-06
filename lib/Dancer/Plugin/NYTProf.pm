@@ -9,7 +9,7 @@ use File::stat;
 use File::Temp;
 use File::Which;
 
-our $VERSION = '0.30';
+our $VERSION = '0.31';
 
 
 =head1 NAME
