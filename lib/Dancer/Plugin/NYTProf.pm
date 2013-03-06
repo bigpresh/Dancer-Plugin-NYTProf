@@ -171,8 +171,8 @@ LISTSTART
         } else {
             $duration = '??? seconds - corrupt profile data?';
         }
-
-        $html .= qq{<li><a href="}.request->uri_for( "/nytprof/$file" )->as_string.qq{">$label</a>}
+        my $url = request->uri_for("/nytprof/$file")->as_string;
+        $html .= qq{<li><a href="$url"">$label</a>}
                . qq{ (PID $pid, $created, $duration)</li>};
     }
 
