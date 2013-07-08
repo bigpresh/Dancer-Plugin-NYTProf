@@ -48,7 +48,7 @@ Below is an example of the options you can configure:
     plugins:
         NYTProf:
             profdir: '/tmp/profiledata'
-            nytprofhtmlpath: '/usr/local/bin/nytprofhtml'
+            nytprofhtml_path: '/usr/local/bin/nytprofhtml'
 
 More configuration (such as the URL at which output is produced, and options to
 control which requests get profiled) will be added in a future version.  (If
