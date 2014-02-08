@@ -19,4 +19,14 @@ WriteMakefile(
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Dancer-Plugin-NYTProf-*' },
+    META_MERGE => {
+        'meta-spec' => { version => 2 },
+        resources => {
+            repository => {
+                type => 'git',
+                url  => 'https://github.com/bigpresh/Dancer-Plugin-NYTProf.git',
+                web  => 'https://github.com/bigpresh/Dancer-Plugin-NYTProf',
+            },
+        },
+    },
 );
