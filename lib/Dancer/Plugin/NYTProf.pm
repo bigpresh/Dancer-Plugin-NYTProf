@@ -61,7 +61,7 @@ likely get done a lot quicker then!)
 my $setting = plugin_setting;
 
 # Work out where nytprof_html is, or die with a sensible error
-my $nytprofhtml_path = $setting->{nytprofhtml_path} 
+my $nytprofhtml_path = $setting->{nytprofhtml_path}
     || File::Which::which('nytprofhtml')
     or die "Could not find nytprofhtml script.  Ensure it's in your path, "
        . "or set the nytprofhtml_path option in your config.";
@@ -191,7 +191,7 @@ get '/nytprof/:filename' => sub {
         send_error 'not_found';
         return "No such profile run found.";
     }
-    
+
     # See if we already have the HTML for this run stored; if not, invoke
     # nytprofhtml to generate it
 
@@ -209,16 +209,16 @@ get '/nytprof/:filename' => sub {
         } elsif ($? & 127) {
             die sprintf "'%s' died with signal %d, %s coredump",
                 $nytprofhtml_path,,
-                ($? & 127), 
+                ($? & 127),
                 ($? & 128) ? 'with' : 'without';
         } elsif ($? != 0) {
-            die sprintf "'%s' exited with value %d", 
+            die sprintf "'%s' exited with value %d",
                 $nytprofhtml_path, $? >> 8;
         }
     }
 
     # Redirect off to view it:
-    return redirect '/nytprof/html/' 
+    return redirect '/nytprof/html/'
         . param('filename') . '/index.html';
 
 };
@@ -277,7 +277,7 @@ L<Plack::Middleware::Debug::Profiler::NYTProf>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2011-12 David Precious.
+Copyright 2011-2014 David Precious.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published
