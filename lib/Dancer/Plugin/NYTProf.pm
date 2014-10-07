@@ -16,6 +16,25 @@ our $VERSION = '0.22';
 
 Dancer::Plugin::NYTProf - easy Devel::NYTProf profiling for Dancer apps
 
+=head1 SYNOPSIS
+
+    package MyApp;
+    use Dancer ':syntax';
+
+    # enables profiling and "/nytprof"
+    use Dancer::Plugin::NYTProf;
+
+Or, if you want to enable it only under development environment (as you should!),
+you can do something like:
+
+    package MyApp;
+    use Dancer ':syntax';
+
+    # enables profiling and "/nytprof"
+    if (setting('environment') eq 'development') {
+        eval 'use Dancer::Plugin::NYTProf';
+    }
+
 =head1 DESCRIPTION
 
 A plugin to provide easy profiling for Dancer applications, using the venerable
