@@ -47,8 +47,27 @@ Below is an example of the options you can configure:
 
     plugins:
         NYTProf:
+            enabled: 1
             profdir: '/tmp/profiledata'
             nytprofhtml_path: '/usr/local/bin/nytprofhtml'
+
+=head2 profdir
+
+Where to store profiling data. Defaults to: C<$appdir/nytprof>
+
+=head2 nytprofhtml_path
+
+Path to the C<nytprofhtml> script that comes with L<Devel::NYTProf>. Defaults to
+the first one we can find in your PATH environment. You should only  need to
+change this in very specific environments, where C<nytprofhtml> can't be found by
+this plugin.
+
+=head2 enabled
+
+Profiling comes with a penalty, and even in development environments you might
+want to enable/disable it via configuration file. This lets you do so. You can
+toggle this plugin by setting the C<enabled> option to 0 or 1. It is, of course,
+enabled by default.
 
 More configuration (such as the URL at which output is produced, and options to
 control which requests get profiled) will be added in a future version.  (If
@@ -59,6 +78,9 @@ likely get done a lot quicker then!)
 
 
 my $setting = plugin_setting;
+
+# exit as quickly as possible if plugin is not enabled
+return 1 if exists $setting->{enabled} && $setting->{enabled} != 1;
 
 # Work out where nytprof_html is, or die with a sensible error
 my $nytprofhtml_path = $setting->{nytprofhtml_path} 
