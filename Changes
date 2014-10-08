@@ -1,5 +1,11 @@
 Revision history for Dancer-Plugin-NYTProf
 
+0.30    2014-10-08
+        [ ENHANCEMENTS]
+        * New enabled option (thanks to garu)
+        * Clarified usage, doc tweaks (thanks to garu)
+        * Added GitHub repo/bugtracker info (thanks to garu)
+
 0.23    2012-09-24
         [ ENHANCEMENTS ]
         * Sort profile runs by most recent first (thanks to leejo)
