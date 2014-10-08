@@ -1,6 +1,24 @@
 NAME
     Dancer::Plugin::NYTProf - easy Devel::NYTProf profiling for Dancer apps
 
+SYNOPSIS
+        package MyApp;
+        use Dancer ':syntax';
+
+        # enables profiling and "/nytprof"
+        use Dancer::Plugin::NYTProf;
+
+    Or, if you want to enable it only under development environment (as you
+    should!), you can do something like:
+
+        package MyApp;
+        use Dancer ':syntax';
+
+        # enables profiling and "/nytprof"
+        if (setting('environment') eq 'development') {
+            eval 'use Dancer::Plugin::NYTProf';
+        }
+
 DESCRIPTION
     A plugin to provide easy profiling for Dancer applications, using the
     venerable Devel::NYTProf.
@@ -30,8 +48,24 @@ CONFIGURATION
 
         plugins:
             NYTProf:
+                enabled: 1
                 profdir: '/tmp/profiledata'
-                nytprofhtmlpath: '/usr/local/bin/nytprofhtml'
+                nytprofhtml_path: '/usr/local/bin/nytprofhtml'
+
+  profdir
+    Where to store profiling data. Defaults to: `$appdir/nytprof'
+
+  nytprofhtml_path
+    Path to the `nytprofhtml' script that comes with Devel::NYTProf.
+    Defaults to the first one we can find in your PATH environment. You
+    should only need to change this in very specific environments, where
+    `nytprofhtml' can't be found by this plugin.
+
+  enabled
+    Profiling comes with a penalty, and even in development environments you
+    might want to enable/disable it via configuration file. This lets you do
+    so. You can toggle this plugin by setting the `enabled' option to 0 or
+    1. It is, of course, enabled by default.
 
     More configuration (such as the URL at which output is produced, and
     options to control which requests get profiled) will be added in a
@@ -45,6 +79,12 @@ ACKNOWLEDGEMENTS
     Stefan Hornburg (racke)
 
     Neil Hooey (nhooey)
+
+    J. Bobby Lopez (jbobbylopez)
+
+    leejo
+
+    Breno G. de Oliveira (garu)
 
 BUGS
     Please report any bugs or feature requests at
@@ -65,7 +105,7 @@ SEE ALSO
     Plack::Middleware::Debug::Profiler::NYTProf
 
 LICENSE AND COPYRIGHT
-    Copyright 2011 David Precious.
+    Copyright 2011-2014 David Precious.
 
     This program is free software; you can redistribute it and/or modify it
     under the terms of either: the GNU General Public License as published
