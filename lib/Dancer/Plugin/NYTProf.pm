@@ -296,6 +296,8 @@ J. Bobby Lopez (jbobbylopez)
 
 leejo
 
+Breno G. de Oliveira (garu)
+
 
 =head1 BUGS
 
