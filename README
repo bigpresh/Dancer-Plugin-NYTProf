@@ -51,6 +51,7 @@ CONFIGURATION
                 enabled: 1
                 profdir: '/tmp/profiledata'
                 nytprofhtml_path: '/usr/local/bin/nytprofhtml'
+                show_durations: 1
 
   profdir
     Where to store profiling data. Defaults to: `$appdir/nytprof'
@@ -71,6 +72,13 @@ CONFIGURATION
     options to control which requests get profiled) will be added in a
     future version. (If there's something you'd like to see soon, do contact
     me and let me know - it'll likely get done a lot quicker then!)
+
+  show_durations
+    When listing profile runs, show the duration of each run, extracted from
+    the profiling data. If you have a lot of profiled runs, this might get
+    slow, so this option is provided if you don't need the profile durations
+    displayed when listing profiles, preferring a faster list. Defaults to
+    1.
 
 AUTHOR
     David Precious, `<davidp at preshweb.co.uk>'
