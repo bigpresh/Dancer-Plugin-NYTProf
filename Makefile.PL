@@ -16,6 +16,7 @@ WriteMakefile(
         'Dancer'         => 1.3060,
         'Devel::NYTProf' => 0,
         'File::Which'    => 0,
+        'Capture::Tiny'  => 0,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Dancer-Plugin-NYTProf-*' },
