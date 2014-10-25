@@ -70,6 +70,7 @@ Below is an example of the options you can configure:
             enabled: 1
             profdir: '/tmp/profiledata'
             nytprofhtml_path: '/usr/local/bin/nytprofhtml'
+            show_durations: 1
 
 =head2 profdir
 
@@ -93,6 +94,13 @@ More configuration (such as the URL at which output is produced, and options to
 control which requests get profiled) will be added in a future version.  (If
 there's something you'd like to see soon, do contact me and let me know - it'll
 likely get done a lot quicker then!)
+
+=head2 show_durations
+
+When listing profile runs, show the duration of each run, extracted from the
+profiling data.  If you have a lot of profiled runs, this might get slow, so
+this option is provided if you don't need the profile durations displayed when
+listing profiles, preferring a faster list.  Defaults to 1.
 
 =cut
 
@@ -205,18 +213,26 @@ LISTSTART
         # the data will be incomplete
         my ($profile,$duration);
 
-        my ($stdout, $stderr, @result) = Capture::Tiny::capture {
-            $profile = Devel::NYTProf::Data->new({ filename => $fullfilepath});
-        }; 
-        if ($profile) {
-            $duration = sprintf '%.4f secs', 
-                $profile->attributes->{profiler_duration};
-        } else {
-            $duration = '??? seconds - corrupt profile data?';
+        if (!defined $setting->{show_durations} || $setting->{show_durations}) {
+            eval {
+                my ($stdout, $stderr, @result) = Capture::Tiny::capture {
+                    $profile = Devel::NYTProf::Data->new(
+                        { filename => $fullfilepath },
+                    );
+                };
+            };
+            if ($profile) {
+                $duration = sprintf '%.4f secs', 
+                    $profile->attributes->{profiler_duration};
+            } else {
+                $duration = '??? seconds - corrupt profile data?';
+            }
         }
+        $pid = "PID $pid";
         my $url = request->uri_for("/nytprof/$file")->as_string;
-        $html .= qq{<li><a href="$url"">$label</a>}
-               . qq{ (PID $pid, $created, $duration)</li>};
+        $html .= qq{<li><a href="$url"">$label</a> (}
+               . join(',', grep { defined $_ } ($pid, $created, $duration))
+               . qq{)</li>};
     }
 
     my $nytversion = $Devel::NYTProf::VERSION;
