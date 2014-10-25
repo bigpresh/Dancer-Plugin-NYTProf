@@ -1,6 +1,7 @@
 package Dancer::Plugin::NYTProf;
 
 use strict;
+use Capture::Tiny ':all';
 use Dancer::Plugin;
 use base 'Dancer::Plugin';
 use Dancer qw(:syntax);
@@ -203,9 +204,10 @@ LISTSTART
         # Done in an eval to catch errors (e.g. if a profile run died mid-way,
         # the data will be incomplete
         my ($profile,$duration);
-        eval {
+
+        my ($stdout, $stderr, @result) = Capture::Tiny::capture {
             $profile = Devel::NYTProf::Data->new({ filename => $fullfilepath});
-        };
+        }; 
         if ($profile) {
             $duration = sprintf '%.4f secs', 
                 $profile->attributes->{profiler_duration};
