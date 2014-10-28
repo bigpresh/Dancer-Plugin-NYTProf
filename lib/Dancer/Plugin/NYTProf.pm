@@ -151,7 +151,6 @@ hook 'before' => sub {
 
     # Go no further if this request was to view profiling output:
     return if $path =~ m{^/nytprof};
-    return if $path =~ m{^/nytprof};
 
     # Now, fix up the path into something we can use for a filename:
     $path =~ s{^/}{};
