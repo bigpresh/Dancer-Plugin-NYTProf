@@ -1,10 +1,29 @@
 Revision history for Dancer-Plugin-NYTProf
 
-0.30    2014-10-08
+0.40    2014-10-28
         [ ENHANCEMENTS]
         * New enabled option (thanks to garu)
         * Clarified usage, doc tweaks (thanks to garu)
         * Added GitHub repo/bugtracker info (thanks to garu)
+        * Option to disable showing execution times of profiles
+
+        [ BUG FIXES ]
+        * Avoid output from Devel::NYTProf::Data sometimes being sent
+          to the browser sometimes (Issue #14)
+        * Catch errors using Devel::NYTProf::Data (e.g. if a profiling
+          session was incomplete or corrupt and handle them rather than
+          crashing when generating the list
+
+0.31    2013-03-06
+        [ ENHANCEMENTS ]
+        * Use uri_for() when assembling links so it works if the app isn't at
+          the root (e.g. proxied / mounted) - (thanks to mopi)
+
+0.30    2013-02-21
+        [ ENHANCEMENTS ]
+        * Show request execution time for each profiled request in list.
+          (May need to make this configurable; could be too slow if there are a
+          lot of profiled requests to list.)
 
 0.23    2012-09-24
         [ ENHANCEMENTS ]
