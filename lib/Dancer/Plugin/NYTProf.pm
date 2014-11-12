@@ -126,6 +126,21 @@ if (!exists $setting->{enabled} || $setting->{enabled}) {
         . "or set the nytprofhtml_path option in your config.";
 
 
+    # Make sure that the directories we need to put profiling data in exist
+    # first:
+    $setting->{profdir} ||= Dancer::FileUtils::path(
+        setting('appdir'), 'nytprof'
+    );
+    if (! -d $setting->{profdir}) {
+        mkdir $setting->{profdir}
+            or die "$setting->{profdir} does not exist and cannot create"
+            . " - $!";
+    }
+    if (!-d Dancer::FileUtils::path($setting->{profdir}, 'html')) {
+        mkdir Dancer::FileUtils::path($setting->{profdir}, 'html')
+            or die "Could not create html dir.";
+    }
+
     # Need to load Devel::NYTProf at runtime after setting env var, as it will
     # insist on creating an nytprof.out file immediately - even if we tell it
     # not to start profiling.  Dirty workaround: get a temp file, then let
@@ -153,21 +168,6 @@ if (!exists $setting->{enabled} || $setting->{enabled}) {
             || (exists $setting->{profiling_enabled} &&
                 !$setting->{profiling_enabled})
         );
-
-        # Make sure that the directories we need to put profiling data in exist
-        # first:
-        $setting->{profdir} ||= Dancer::FileUtils::path(
-            setting('appdir'), 'nytprof'
-        );
-        if (! -d $setting->{profdir}) {
-            mkdir $setting->{profdir}
-                or die "$setting->{profdir} does not exist and cannot create"
-                . " - $!";
-        }
-        if (!-d Dancer::FileUtils::path($setting->{profdir}, 'html')) {
-            mkdir Dancer::FileUtils::path($setting->{profdir}, 'html')
-                or die "Could not create html dir.";
-        }
 
         # Go no further if this request was to view profiling output:
         return if $path =~ m{^/nytprof};
