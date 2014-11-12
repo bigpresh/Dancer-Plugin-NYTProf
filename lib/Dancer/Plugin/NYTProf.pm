@@ -68,6 +68,7 @@ Below is an example of the options you can configure:
     plugins:
         NYTProf:
             enabled: 1
+            profiling_enabled: 1
             profdir: '/tmp/profiledata'
             nytprofhtml_path: '/usr/local/bin/nytprofhtml'
             show_durations: 1
@@ -85,11 +86,19 @@ this plugin.
 
 =head2 enabled
 
-Profiling comes with a penalty, and even in development environments you might
-want to enable/disable it via configuration file. This lets you do so. You can
-toggle this plugin by setting the C<enabled> option to 0 or 1. It is, of course,
-enabled by default.
+Whether the plugin as a whole is enabled; disabling this setting will disable
+profiling route executions, and also disable the route which serves up the
+results at C</nytprof>.  Enabled by default, so you only have to provide this
+setting if you wish to set it to a false value.
 
+=head2 profiling_enabled
+
+Whether route executions are profiled or not; if this is set to a false value,
+the before hook which would usually cause L<Devel::NYTProf> to profile that
+route execution will not do so.  This allows you to disable profiling but still
+be able to browse the results of existing profiled executions.  Enabled by
+default, so you only have to provide this setting if you wish to set it to a
+false value.
 
 =head2 show_durations
 
@@ -108,78 +117,106 @@ likely get done a lot quicker then!)
 
 my $setting = plugin_setting;
 
-# exit as quickly as possible if plugin is not enabled
-return 1 if exists $setting->{enabled} && $setting->{enabled} != 1;
+if (!exists $setting->{enabled} || $setting->{enabled}) {
 
-# Work out where nytprof_html is, or die with a sensible error
-my $nytprofhtml_path = $setting->{nytprofhtml_path}
-    || File::Which::which('nytprofhtml')
-    or die "Could not find nytprofhtml script.  Ensure it's in your path, "
-       . "or set the nytprofhtml_path option in your config.";
+    # Work out where nytprof_html is, or die with a sensible error
+    my $nytprofhtml_path = $setting->{nytprofhtml_path}
+        || File::Which::which('nytprofhtml')
+        or die "Could not find nytprofhtml script.  Ensure it's in your path, "
+        . "or set the nytprofhtml_path option in your config.";
 
 
-# Need to load Devel::NYTProf at runtime after setting env var, as it will
-# insist on creating an nytprof.out file immediately - even if we tell it not to
-# start profiling.
-# Dirty workaround: get a temp file, then let Devel::NYTProf use that, with
-# addpid enabled so that it will append the PID too (so the filename won't
-# exist), load Devel::NYTProf, then unlink the file.
-# This is dirty, hacky shit that needs to die, but should make things work for
-# now.
-my $tempfh = File::Temp->new;
-my $file = $tempfh->filename;
-$tempfh = undef; # let the file get deleted
-$ENV{NYTPROF} = "start=no:file=$file";
-require Devel::NYTProf;
-unlink $file;
+    # Need to load Devel::NYTProf at runtime after setting env var, as it will
+    # insist on creating an nytprof.out file immediately - even if we tell it
+    # not to start profiling.  Dirty workaround: get a temp file, then let
+    # Devel::NYTProf use that, with addpid enabled so that it will append the
+    # PID too (so the filename won't exist), load Devel::NYTProf, then unlink
+    # the file.  This is dirty, hacky shit that needs to die, but should make
+    # things work for now.
+    my $tempfh = File::Temp->new;
+    my $file = $tempfh->filename;
+    $tempfh = undef; # let the file get deleted
+    $ENV{NYTPROF} = "start=no:file=$file";
+    require Devel::NYTProf;
+    unlink $file;
 
-hook 'before' => sub {
-    my $path = request->path;
+    # Set up the hook that will start profiling each route execution.
+    hook 'before' => sub {
+        my $path = request->path;
 
-    # Make sure that the directories we need to put profiling data in exist,
-    # first:
-    $setting->{profdir} ||= Dancer::FileUtils::path(
-        setting('appdir'), 'nytprof'
-    );
-    if (! -d $setting->{profdir}) {
-        mkdir $setting->{profdir}
-            or die "$setting->{profdir} does not exist and cannot create - $!";
-    }
-    if (!-d Dancer::FileUtils::path($setting->{profdir}, 'html')) {
-        mkdir Dancer::FileUtils::path($setting->{profdir}, 'html')
-            or die "Could not create html dir.";
-    }
+        # Do nothing if profiling is disabled, or if we're disabled globally.
+        # (Note: if we were disabled globally by the config file's enabled
+        # setting, then this hook won't have even been installed - but check
+        # anyway in order to do the expected thing if someone has modified the 
+        # config at runtime)
+        return if ((exists $setting->{enabled} && !$setting->{enabled})
+            || (exists $setting->{profiling_enabled} &&
+                !$setting->{profiling_enabled})
+        );
 
-    # Go no further if this request was to view profiling output:
-    return if $path =~ m{^/nytprof};
+        # Make sure that the directories we need to put profiling data in exist
+        # first:
+        $setting->{profdir} ||= Dancer::FileUtils::path(
+            setting('appdir'), 'nytprof'
+        );
+        if (! -d $setting->{profdir}) {
+            mkdir $setting->{profdir}
+                or die "$setting->{profdir} does not exist and cannot create"
+                . " - $!";
+        }
+        if (!-d Dancer::FileUtils::path($setting->{profdir}, 'html')) {
+            mkdir Dancer::FileUtils::path($setting->{profdir}, 'html')
+                or die "Could not create html dir.";
+        }
 
-    # Now, fix up the path into something we can use for a filename:
-    $path =~ s{^/}{};
-    $path =~ s{/}{_s_}g;
-    $path =~ s{[^a-z0-9]}{_}gi;
+        # Go no further if this request was to view profiling output:
+        return if $path =~ m{^/nytprof};
 
-    # Start profiling, and let the request continue
-    DB::enable_profile(
-        Dancer::FileUtils::path($setting->{profdir}, "nytprof.out.$path.$$")
-    );
-};
+        # Now, fix up the path into something we can use for a filename:
+        $path =~ s{^/}{};
+        $path =~ s{/}{_s_}g;
+        $path =~ s{[^a-z0-9]}{_}gi;
 
-hook 'after' => sub {
-    DB::disable_profile();
-    DB::finish_profile();
-};
+        # Start profiling, and let the request continue
+        if (
+            !exists $setting->{profiling_enabled} 
+            || $setting->{profiling_enabled}
+        ) {
+            DB::enable_profile(
+                Dancer::FileUtils::path(
+                    $setting->{profdir}, "nytprof.out.$path.$$"
+                )
+            );
+        }
+    };
 
-get '/nytprof' => sub {
-    require Devel::NYTProf::Data;
-    opendir my $dirh, $setting->{profdir}
-        or die "Unable to open profiles dir $setting->{profdir} - $!";
-    my @files = grep { /^nytprof\.out/ } readdir $dirh;
-    closedir $dirh;
+    hook 'after' => sub {
+        if (!exists $setting->{profiling_enabled}
+            || $setting->{profiling_enabled})
+        {
+            DB::disable_profile();
+            DB::finish_profile();
+        }
+    };
 
-    # HTML + CSS here is a bit ugly, but I want this to be usable as a
-    # single-file plugin that Just Works, without needing to copy over templates
-    # / CSS etc.
-    my $html = <<LISTSTART;
+    get '/nytprof' => sub {
+        # First of all, if we were enabled initially, so the route got
+        # installed, but later enabled was set to a false value at runtime,
+        # refuse to serve:
+        if (exists $setting->{enabled} && !$setting->{enabled}) {
+            return "Disabled via 'enabled' setting";
+        }
+
+        require Devel::NYTProf::Data;
+        opendir my $dirh, $setting->{profdir}
+            or die "Unable to open profiles dir $setting->{profdir} - $!";
+        my @files = grep { /^nytprof\.out/ } readdir $dirh;
+        closedir $dirh;
+
+        # HTML + CSS here is a bit ugly, but I want this to be usable as a
+        # single-file plugin that Just Works, without needing to copy over templates
+        # / CSS etc.
+        my $html = <<LISTSTART;
 <html><head><title>NYTProf profile run list</title>
 <style>
 * { font-family: Verdana, Arial, Helvetica, sans-serif; }
@@ -193,50 +230,54 @@ produced by <tt>Devel::NYTProf</tt>.</p>
 <ul>
 LISTSTART
 
-    for my $file (
-        sort {
-            (stat Dancer::FileUtils::path($setting->{profdir},$b))->ctime
-            <=>
-            (stat Dancer::FileUtils::path($setting->{profdir},$a))->ctime
-        } @files
-    ) {
-        my $fullfilepath = Dancer::FileUtils::path($setting->{profdir}, $file);
-        my $label = $file;
-        $label =~ s{nytprof\.out\.}{};
-        $label =~ s{_s_}{/}g;
-        $label =~ s{\.(\d+)$}{};
-        my $pid = $1;  # refactor this crap
-        my $created = scalar localtime( (stat $fullfilepath)->ctime );
+        for my $file (
+            sort {
+                (stat Dancer::FileUtils::path($setting->{profdir},$b))->ctime
+                <=>
+                (stat Dancer::FileUtils::path($setting->{profdir},$a))->ctime
+            } @files
+        ) {
+            my $fullfilepath = Dancer::FileUtils::path(
+                $setting->{profdir}, $file,
+            );
+            my $label = $file;
+            $label =~ s{nytprof\.out\.}{};
+            $label =~ s{_s_}{/}g;
+            $label =~ s{\.(\d+)$}{};
+            my $pid = $1;  # refactor this crap
+            my $created = scalar localtime( (stat $fullfilepath)->ctime );
 
-        # read the profile to find out the duration of the profiled request.
-        # Done in an eval to catch errors (e.g. if a profile run died mid-way,
-        # the data will be incomplete
-        my ($profile,$duration);
+            # read the profile to find out the duration of the profiled request.
+            # Done in an eval to catch errors (e.g. if a profile run died,
+            # the data will be incomplete)
+            my ($profile,$duration);
 
-        if (!defined $setting->{show_durations} || $setting->{show_durations}) {
-            eval {
-                my ($stdout, $stderr, @result) = Capture::Tiny::capture {
-                    $profile = Devel::NYTProf::Data->new(
-                        { filename => $fullfilepath },
-                    );
+            if (!defined $setting->{show_durations}
+                || $setting->{show_durations}) 
+            {
+                eval {
+                    my ($stdout, $stderr, @result) = Capture::Tiny::capture {
+                        $profile = Devel::NYTProf::Data->new(
+                            { filename => $fullfilepath },
+                        );
+                    };
                 };
-            };
-            if ($profile) {
-                $duration = sprintf '%.4f secs', 
-                    $profile->attributes->{profiler_duration};
-            } else {
-                $duration = '??? seconds - corrupt profile data?';
+                if ($profile) {
+                    $duration = sprintf '%.4f secs', 
+                        $profile->attributes->{profiler_duration};
+                } else {
+                    $duration = '??? seconds - corrupt profile data?';
+                }
             }
+            $pid = "PID $pid";
+            my $url = request->uri_for("/nytprof/$file")->as_string;
+            $html .= qq{<li><a href="$url"">$label</a> (}
+                . join(',', grep { defined $_ } ($pid, $created, $duration))
+                . qq{)</li>};
         }
-        $pid = "PID $pid";
-        my $url = request->uri_for("/nytprof/$file")->as_string;
-        $html .= qq{<li><a href="$url"">$label</a> (}
-               . join(',', grep { defined $_ } ($pid, $created, $duration))
-               . qq{)</li>};
-    }
 
-    my $nytversion = $Devel::NYTProf::VERSION;
-    $html .= <<LISTEND;
+        my $nytversion = $Devel::NYTProf::VERSION;
+        $html .= <<LISTEND;
 </ul>
 
 <p>Generated by <a href="http://github.com/bigpresh/Dancer-Plugin-NYTProf">
@@ -247,60 +288,74 @@ Devel::NYTProf</a> v$nytversion)</p>
 </html>
 LISTEND
 
-    return $html;
-};
+        return $html;
+    };
 
 
 # Serve up HTML reports
-get '/nytprof/html/**' => sub {
-    my ($path) = splat;
-    send_file Dancer::FileUtils::path(
-        $setting->{profdir}, 'html', map { _safe_filename($_) } @$path
-    ), system_path => 1;
-};
-
-get '/nytprof/:filename' => sub {
-
-    my $profiledata = Dancer::FileUtils::path(
-        $setting->{profdir}, _safe_filename(param('filename'))
-    );
-
-    if (!-f $profiledata) {
-        send_error 'not_found';
-        return "No such profile run found.";
-    }
-
-    # See if we already have the HTML for this run stored; if not, invoke
-    # nytprofhtml to generate it
-
-    # Right, do we already have generated HTML for this one?  If so, use it
-    my $htmldir = Dancer::FileUtils::path(
-        $setting->{profdir}, 'html', _safe_filename(param('filename'))
-    );
-    if (! -f Dancer::FileUtils::path($htmldir, 'index.html')) {
-        # TODO: scrutinise this very carefully to make sure it's not
-        # exploitable
-        system($nytprofhtml_path, "--file=$profiledata", "--out=$htmldir");
-
-        if ($? == -1) {
-            die "'$nytprofhtml_path' failed to execute: $!";
-        } elsif ($? & 127) {
-            die sprintf "'%s' died with signal %d, %s coredump",
-                $nytprofhtml_path,,
-                ($? & 127),
-                ($? & 128) ? 'with' : 'without';
-        } elsif ($? != 0) {
-            die sprintf "'%s' exited with value %d",
-                $nytprofhtml_path, $? >> 8;
+    get '/nytprof/html/**' => sub {
+        # First of all, if we were enabled initially, so the route got
+        # installed, but later enabled was set to a false value at runtime,
+        # refuse to serve:
+        if (exists $setting->{enabled} && !$setting->{enabled}) {
+            return "Disabled via 'enabled' setting";
         }
-    }
 
-    # Redirect off to view it:
-    return redirect '/nytprof/html/'
-        . param('filename') . '/index.html';
+        my ($path) = splat;
+        send_file Dancer::FileUtils::path(
+            $setting->{profdir}, 'html', map { _safe_filename($_) } @$path
+        ), system_path => 1;
+    };
 
-};
+    get '/nytprof/:filename' => sub {
+        # First of all, if we were enabled initially, so the route got
+        # installed, but later enabled was set to a false value at runtime,
+        # refuse to serve:
+        if (exists $setting->{enabled} && !$setting->{enabled}) {
+            return "Disabled via 'enabled' setting";
+        }
 
+        my $profiledata = Dancer::FileUtils::path(
+            $setting->{profdir}, _safe_filename(param('filename'))
+        );
+
+        if (!-f $profiledata) {
+            send_error 'not_found';
+            return "No such profile run found.";
+        }
+
+        # See if we already have the HTML for this run stored; if not, invoke
+        # nytprofhtml to generate it
+
+        # Right, do we already have generated HTML for this one?  If so, use it
+        my $htmldir = Dancer::FileUtils::path(
+            $setting->{profdir}, 'html', _safe_filename(param('filename'))
+        );
+        if (! -f Dancer::FileUtils::path($htmldir, 'index.html')) {
+            # TODO: scrutinise this very carefully to make sure it's not
+            # exploitable
+            system($nytprofhtml_path, "--file=$profiledata", "--out=$htmldir");
+
+            if ($? == -1) {
+                die "'$nytprofhtml_path' failed to execute: $!";
+            } elsif ($? & 127) {
+                die sprintf "'%s' died with signal %d, %s coredump",
+                    $nytprofhtml_path,,
+                    ($? & 127),
+                    ($? & 128) ? 'with' : 'without';
+            } elsif ($? != 0) {
+                die sprintf "'%s' exited with value %d",
+                    $nytprofhtml_path, $? >> 8;
+            }
+        }
+
+        # Redirect off to view it:
+        return redirect '/nytprof/html/'
+            . param('filename') . '/index.html';
+
+    };
+
+}
 
 # Rudimentary security - remove any directory traversal or poison null
 # attempts.  We're dealing with user input here, and if they're a sneaky
