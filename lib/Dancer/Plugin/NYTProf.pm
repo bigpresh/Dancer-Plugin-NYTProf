@@ -90,10 +90,6 @@ want to enable/disable it via configuration file. This lets you do so. You can
 toggle this plugin by setting the C<enabled> option to 0 or 1. It is, of course,
 enabled by default.
 
-More configuration (such as the URL at which output is produced, and options to
-control which requests get profiled) will be added in a future version.  (If
-there's something you'd like to see soon, do contact me and let me know - it'll
-likely get done a lot quicker then!)
 
 =head2 show_durations
 
@@ -101,6 +97,11 @@ When listing profile runs, show the duration of each run, extracted from the
 profiling data.  If you have a lot of profiled runs, this might get slow, so
 this option is provided if you don't need the profile durations displayed when
 listing profiles, preferring a faster list.  Defaults to 1.
+
+More configuration (such as the URL at which output is produced, and options to
+control which requests get profiled) will be added in a future version.  (If
+there's something you'd like to see soon, do contact me and let me know - it'll
+likely get done a lot quicker then!)
 
 =cut
 
